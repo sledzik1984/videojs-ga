@@ -1,6 +1,6 @@
 /*
-* videojs-ga - v0.4.2 - 2015-02-06
-* Copyright (c) 2015 Michael Bensoussan
+* videojs-ga - v0.4.2 - 2016-07-23
+* Copyright (c) 2016 Michael Bensoussan
 * Licensed MIT
 */
 (function() {
@@ -12,8 +12,8 @@
       options = {};
     }
     dataSetupOptions = {};
-    if (this.options()["data-setup"]) {
-      parsedOptions = JSON.parse(this.options()["data-setup"]);
+    if (this.options_["data-setup"]) {
+      parsedOptions = JSON.parse(this.options_["data-setup"]);
       if (parsedOptions.ga) {
         dataSetupOptions = parsedOptions.ga;
       }
