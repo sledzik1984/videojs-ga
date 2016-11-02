@@ -1,13 +1,14 @@
 /*
-* videojs-ga - v0.4.2 - 2015-02-06
-* Copyright (c) 2015 Michael Bensoussan
+* videojs-ga - v0.4.2 - 2016-11-02
+* Copyright (c) 2016 Michael Bensoussan
 * Licensed MIT
 */
 (function() {
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   videojs.plugin('ga', function(options) {
-    var dataSetupOptions, defaultsEventsToTrack, end, error, eventCategory, eventLabel, eventsToTrack, fullscreen, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, resize, seekEnd, seekStart, seeking, sendbeacon, timeupdate, volumeChange;
+    var dataSetupOptions, defaultsEventsToTrack, end, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedSingleIntervals, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackSeconds, trackingTime, volumeChange,
+      _this = this;
     if (options == null) {
       options = {};
     }
@@ -20,35 +21,56 @@
     }
     defaultsEventsToTrack = ['loaded', 'percentsPlayed', 'start', 'end', 'seek', 'play', 'pause', 'resize', 'volumeChange', 'error', 'fullscreen'];
     eventsToTrack = options.eventsToTrack || dataSetupOptions.eventsToTrack || defaultsEventsToTrack;
-    percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval || 10;
     eventCategory = options.eventCategory || dataSetupOptions.eventCategory || 'Video';
     eventLabel = options.eventLabel || dataSetupOptions.eventLabel;
-    options.debug = options.debug || false;
+    percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval;
+    secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval;
+    secondsPlayedSingleIntervals = options.secondsPlayedSingleIntervals || dataSetupOptions.secondsPlayedSingleIntervals;
     percentsAlreadyTracked = [];
     seekStart = seekEnd = 0;
     seeking = false;
-    loaded = function() {
+    trackingTime = false;
+    secondsPlayed = 0;
+    isFinite = void 0;
+    trackSeconds = void 0;
+    interval = void 0;
+    options.debug = options.debug || false;
+    init = function() {
+      isFinite = Number.isFinite(_this.duration());
+      trackSeconds = (secondsPlayedInterval || Array.isArray(secondsPlayedSingleIntervals)) && (!isFinite || options.trackFiniteSeconds);
       if (!eventLabel) {
-        eventLabel = this.currentSrc().split("/").slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i, '');
+        eventLabel = _this.currentSrc().split("/").slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i, '');
       }
+      if (!isFinite && !(options.eventCategory || dataSetupOptions.eventCategory)) {
+        eventCategory = 'Stream';
+      }
+      return startTimeTracking();
+    };
+    loaded = function() {
+      init();
       if (__indexOf.call(eventsToTrack, "loadedmetadata") >= 0) {
         sendbeacon('loadedmetadata', true);
       }
     };
     timeupdate = function() {
       var currentTime, duration, percent, percentPlayed, _i;
-      currentTime = Math.round(this.currentTime());
+      if (!isFinite) {
+        return;
+      }
+      currentTime = getCurrentValue();
       duration = Math.round(this.duration());
       percentPlayed = Math.round(currentTime / duration * 100);
-      for (percent = _i = 0; _i <= 99; percent = _i += percentsPlayedInterval) {
-        if (percentPlayed >= percent && __indexOf.call(percentsAlreadyTracked, percent) < 0) {
-          if (__indexOf.call(eventsToTrack, "start") >= 0 && percent === 0 && percentPlayed > 0) {
-            sendbeacon('start', true);
-          } else if (__indexOf.call(eventsToTrack, "percentsPlayed") >= 0 && percentPlayed !== 0) {
-            sendbeacon('percent played', true, percent);
-          }
-          if (percentPlayed > 0) {
-            percentsAlreadyTracked.push(percent);
+      if (percentsPlayedInterval) {
+        for (percent = _i = 0; _i <= 99; percent = _i += percentsPlayedInterval) {
+          if (percentPlayed >= percent && __indexOf.call(percentsAlreadyTracked, percent) < 0) {
+            if (__indexOf.call(eventsToTrack, "start") >= 0 && percent === 0 && percentPlayed > 0) {
+              sendbeacon('start', true);
+            } else if (__indexOf.call(eventsToTrack, "percentsPlayed") >= 0 && percentPlayed !== 0) {
+              sendbeacon('percent played', true, percent);
+            }
+            if (percentPlayed > 0) {
+              percentsAlreadyTracked.push(percent);
+            }
           }
         }
       }
@@ -62,18 +84,52 @@
         }
       }
     };
+    startTimeTracking = function() {
+      var currentTime;
+      if (!trackSeconds || trackingTime) {
+        return;
+      }
+      trackingTime = true;
+      currentTime = getCurrentTime();
+      return interval = setInterval(function() {
+        if (!(getCurrentTime() > currentTime)) {
+          return;
+        }
+        secondsPlayed++;
+        if (__indexOf.call(secondsPlayedSingleIntervals, secondsPlayed) >= 0 || !(secondsPlayed % secondsPlayedInterval)) {
+          sendbeacon('seconds played', true, secondsPlayed);
+        }
+      }, 1000);
+    };
+    stopTimeTracking = function() {
+      clearInterval(interval);
+      return trackingTime = false;
+    };
+    firstplay = function() {
+      startTimeTracking();
+      if (__indexOf.call(eventsToTrack, 'firstplay') >= 0) {
+        return sendbeacon('firstplay', true);
+      }
+    };
     end = function() {
+      stopTimeTracking();
       sendbeacon('end', true);
     };
     play = function() {
       var currentTime;
-      currentTime = Math.round(this.currentTime());
+      startTimeTracking();
+      currentTime = getCurrentValue();
       sendbeacon('play', true, currentTime);
+      seeking = false;
+    };
+    playing = function() {
+      startTimeTracking();
       seeking = false;
     };
     pause = function() {
       var currentTime, duration;
-      currentTime = Math.round(this.currentTime());
+      stopTimeTracking();
+      currentTime = getCurrentValue();
       duration = Math.round(this.duration());
       if (currentTime !== duration && !seeking) {
         sendbeacon('pause', false, currentTime);
@@ -89,42 +145,57 @@
     };
     error = function() {
       var currentTime;
-      currentTime = Math.round(this.currentTime());
+      currentTime = getCurrentValue();
       sendbeacon('error', true, currentTime);
     };
     fullscreen = function() {
       var currentTime;
-      currentTime = Math.round(this.currentTime());
+      currentTime = getCurrentValue();
       if ((typeof this.isFullscreen === "function" ? this.isFullscreen() : void 0) || (typeof this.isFullScreen === "function" ? this.isFullScreen() : void 0)) {
         sendbeacon('enter fullscreen', false, currentTime);
       } else {
         sendbeacon('exit fullscreen', false, currentTime);
       }
     };
+    getCurrentValue = function() {
+      if (isFinite) {
+        return getCurrentTime();
+      } else {
+        return secondsPlayed;
+      }
+    };
+    getCurrentTime = function() {
+      return Math.round(_this.currentTime());
+    };
     sendbeacon = function(action, nonInteraction, value) {
-      if (window.ga) {
-        ga('send', 'event', {
-          'eventCategory': eventCategory,
-          'eventAction': action,
-          'eventLabel': eventLabel,
-          'eventValue': value,
-          'nonInteraction': nonInteraction
-        });
-      } else if (window._gaq) {
-        _gaq.push(['_trackEvent', eventCategory, action, eventLabel, value, nonInteraction]);
-      } else if (options.debug) {
-        console.log("Google Analytics not detected");
+      var eventFields;
+      eventFields = {
+        eventCategory: eventCategory,
+        eventAction: action,
+        nonInteraction: nonInteraction
+      };
+      if (eventLabel != null) {
+        eventFields.eventLabel = eventLabel;
+      }
+      if (value != null) {
+        eventFields.eventValue = value;
+      }
+      _this.trigger('gaEvent', eventFields);
+      if (options.debug) {
+        console.log(eventFields);
       }
     };
     this.ready(function() {
       this.on("loadedmetadata", loaded);
       this.on("timeupdate", timeupdate);
+      this.one("firstplay", firstplay);
       if (__indexOf.call(eventsToTrack, "end") >= 0) {
         this.on("ended", end);
       }
       if (__indexOf.call(eventsToTrack, "play") >= 0) {
         this.on("play", play);
       }
+      this.on("playing", playing);
       if (__indexOf.call(eventsToTrack, "pause") >= 0) {
         this.on("pause", pause);
       }
