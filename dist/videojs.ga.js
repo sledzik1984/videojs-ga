@@ -7,7 +7,7 @@
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   videojs.plugin('ga', function(options) {
-    var dataSetupOptions, defaultsEventsToTrack, end, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedSingleIntervals, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackSeconds, trackingTime, volumeChange,
+    var autoLabel, dataSetupOptions, defaultsEventsToTrack, end, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedSingleIntervals, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackSeconds, trackingTime, volumeChange,
       _this = this;
     if (options == null) {
       options = {};
@@ -22,6 +22,7 @@
     defaultsEventsToTrack = ['loaded', 'percentsPlayed', 'start', 'end', 'seek', 'play', 'pause', 'resize', 'volumeChange', 'error', 'fullscreen'];
     eventsToTrack = options.eventsToTrack || dataSetupOptions.eventsToTrack || defaultsEventsToTrack;
     eventCategory = options.eventCategory || dataSetupOptions.eventCategory || 'Video';
+    autoLabel = options.autoLabel != null ? options.autoLabel : true;
     eventLabel = options.eventLabel || dataSetupOptions.eventLabel;
     percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval;
     secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval;
@@ -38,7 +39,7 @@
     init = function() {
       isFinite = Number.isFinite(_this.duration());
       trackSeconds = (secondsPlayedInterval || Array.isArray(secondsPlayedSingleIntervals)) && (!isFinite || options.trackFiniteSeconds);
-      if (!eventLabel) {
+      if (!eventLabel && autoLabel) {
         eventLabel = _this.currentSrc().split("/").slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i, '');
       }
       if (!isFinite && !(options.eventCategory || dataSetupOptions.eventCategory)) {

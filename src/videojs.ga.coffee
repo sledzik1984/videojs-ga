@@ -21,6 +21,7 @@ videojs.plugin 'ga', (options = {}) ->
   eventsToTrack = options.eventsToTrack || dataSetupOptions.eventsToTrack || defaultsEventsToTrack
   eventCategory = options.eventCategory || dataSetupOptions.eventCategory || 'Video'
   # if you didn't specify a name, it will be 'guessed' from the video src after metadatas are loaded
+  autoLabel = if options.autoLabel? then options.autoLabel else true
   eventLabel = options.eventLabel || dataSetupOptions.eventLabel
   percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval
   secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval
@@ -46,7 +47,7 @@ videojs.plugin 'ga', (options = {}) ->
       (secondsPlayedInterval || Array.isArray(secondsPlayedSingleIntervals)) &&
       (!isFinite || options.trackFiniteSeconds)
 
-    unless eventLabel
+    if !eventLabel && autoLabel
       eventLabel = @currentSrc().split("/").slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i,'')
 
     if !isFinite && !(options.eventCategory || dataSetupOptions.eventCategory)
