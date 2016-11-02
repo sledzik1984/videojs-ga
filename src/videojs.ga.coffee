@@ -14,7 +14,7 @@ videojs.plugin 'ga', (options = {}) ->
     dataSetupOptions = parsedOptions.ga if parsedOptions.ga
 
   defaultsEventsToTrack = [
-    'loaded', 'percentsPlayed', 'start',
+    'loaded', 'percentsPlayed', 'secondsPlayed', 'start',
     'end', 'seek', 'play', 'pause', 'resize',
     'volumeChange', 'error', 'fullscreen'
   ]
@@ -23,9 +23,9 @@ videojs.plugin 'ga', (options = {}) ->
   # if you didn't specify a name, it will be 'guessed' from the video src after metadatas are loaded
   autoLabel = if options.autoLabel? then options.autoLabel else true
   eventLabel = options.eventLabel || dataSetupOptions.eventLabel
-  percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval
-  secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval
-  secondsPlayedSingleIntervals = options.secondsPlayedSingleIntervals || dataSetupOptions.secondsPlayedSingleIntervals
+  percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval || 10
+  secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval || 60
+  secondsPlayedMoments = options.secondsPlayedMoments || dataSetupOptions.secondsPlayedMoments
 
   # init a few variables
   percentsAlreadyTracked = []
@@ -43,9 +43,7 @@ videojs.plugin 'ga', (options = {}) ->
   init = =>
     isFinite = Number.isFinite(@duration())
 
-    trackSeconds =
-      (secondsPlayedInterval || Array.isArray(secondsPlayedSingleIntervals)) &&
-      (!isFinite || options.trackFiniteSeconds)
+    trackSeconds = 'secondsPlayed' in eventsToTrack && (!isFinite || options.trackFiniteSeconds)
 
     if !eventLabel && autoLabel
       eventLabel = @currentSrc().split("/").slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i,'')
@@ -102,7 +100,7 @@ videojs.plugin 'ga', (options = {}) ->
       return unless getCurrentTime() > currentTime
       secondsPlayed++
 
-      if secondsPlayed in secondsPlayedSingleIntervals ||
+      if secondsPlayed in secondsPlayedMoments ||
       !(secondsPlayed % secondsPlayedInterval)
         sendbeacon( 'seconds played', true, secondsPlayed )
 
@@ -125,7 +123,7 @@ videojs.plugin 'ga', (options = {}) ->
   play = ->
     startTimeTracking()
     currentTime = getCurrentValue()
-    sendbeacon( 'play', true, currentTime )
+    sendbeacon( 'play', true, currentTime ) if (currentTime > 0 || 'start' not in eventsToTrack)
     seeking = false
     return
 

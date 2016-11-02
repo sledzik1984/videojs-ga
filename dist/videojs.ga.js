@@ -7,7 +7,7 @@
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   videojs.plugin('ga', function(options) {
-    var autoLabel, dataSetupOptions, defaultsEventsToTrack, end, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedSingleIntervals, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackSeconds, trackingTime, volumeChange,
+    var autoLabel, dataSetupOptions, defaultsEventsToTrack, end, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedMoments, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackSeconds, trackingTime, volumeChange,
       _this = this;
     if (options == null) {
       options = {};
@@ -19,14 +19,14 @@
         dataSetupOptions = parsedOptions.ga;
       }
     }
-    defaultsEventsToTrack = ['loaded', 'percentsPlayed', 'start', 'end', 'seek', 'play', 'pause', 'resize', 'volumeChange', 'error', 'fullscreen'];
+    defaultsEventsToTrack = ['loaded', 'percentsPlayed', 'secondsPlayed', 'start', 'end', 'seek', 'play', 'pause', 'resize', 'volumeChange', 'error', 'fullscreen'];
     eventsToTrack = options.eventsToTrack || dataSetupOptions.eventsToTrack || defaultsEventsToTrack;
     eventCategory = options.eventCategory || dataSetupOptions.eventCategory || 'Video';
     autoLabel = options.autoLabel != null ? options.autoLabel : true;
     eventLabel = options.eventLabel || dataSetupOptions.eventLabel;
-    percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval;
-    secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval;
-    secondsPlayedSingleIntervals = options.secondsPlayedSingleIntervals || dataSetupOptions.secondsPlayedSingleIntervals;
+    percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval || 10;
+    secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval || 60;
+    secondsPlayedMoments = options.secondsPlayedMoments || dataSetupOptions.secondsPlayedMoments;
     percentsAlreadyTracked = [];
     seekStart = seekEnd = 0;
     seeking = false;
@@ -38,7 +38,7 @@
     options.debug = options.debug || false;
     init = function() {
       isFinite = Number.isFinite(_this.duration());
-      trackSeconds = (secondsPlayedInterval || Array.isArray(secondsPlayedSingleIntervals)) && (!isFinite || options.trackFiniteSeconds);
+      trackSeconds = __indexOf.call(eventsToTrack, 'secondsPlayed') >= 0 && (!isFinite || options.trackFiniteSeconds);
       if (!eventLabel && autoLabel) {
         eventLabel = _this.currentSrc().split("/").slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i, '');
       }
@@ -97,7 +97,7 @@
           return;
         }
         secondsPlayed++;
-        if (__indexOf.call(secondsPlayedSingleIntervals, secondsPlayed) >= 0 || !(secondsPlayed % secondsPlayedInterval)) {
+        if (__indexOf.call(secondsPlayedMoments, secondsPlayed) >= 0 || !(secondsPlayed % secondsPlayedInterval)) {
           sendbeacon('seconds played', true, secondsPlayed);
         }
       }, 1000);
@@ -120,7 +120,9 @@
       var currentTime;
       startTimeTracking();
       currentTime = getCurrentValue();
-      sendbeacon('play', true, currentTime);
+      if (currentTime > 0 || __indexOf.call(eventsToTrack, 'start') < 0) {
+        sendbeacon('play', true, currentTime);
+      }
       seeking = false;
     };
     playing = function() {
