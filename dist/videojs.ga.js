@@ -182,6 +182,15 @@
         eventFields.eventValue = value;
       }
       _this.trigger('gaEvent', eventFields);
+      if (options.sendGaEventDirectly && window.ga) {
+        ga('send', 'event', {
+          'eventCategory': eventCategory,
+          'eventAction': action,
+          'eventLabel': eventLabel,
+          'eventValue': value,
+          'nonInteraction': nonInteraction
+        });
+      }
       if (options.debug) {
         console.log(eventFields);
       }
