@@ -7,7 +7,7 @@
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   videojs.plugin('ga', function(options) {
-    var autoLabel, dataSetupOptions, defaultsEventsToTrack, end, ended, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedMoments, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackReplaySeconds, trackSeconds, trackingTime, volumeChange,
+    var adend, adpause, adserror, adskip, adstart, adtimeout, autoLabel, dataSetupOptions, defaultsEventsToTrack, end, ended, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedMoments, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackReplaySeconds, trackSeconds, trackingTime, volumeChange,
       _this = this;
     if (options == null) {
       options = {};
@@ -19,7 +19,7 @@
         dataSetupOptions = parsedOptions.ga;
       }
     }
-    defaultsEventsToTrack = ['loaded', 'percentsPlayed', 'secondsPlayed', 'start', 'end', 'seek', 'play', 'pause', 'resize', 'volumeChange', 'error', 'fullscreen'];
+    defaultsEventsToTrack = ['loaded', 'percentsPlayed', 'secondsPlayed', 'start', 'end', 'seek', 'play', 'pause', 'resize', 'volumeChange', 'error', 'fullscreen', 'adstart', 'adpause', 'adend', 'adskip', 'adtimeout', 'adserror'];
     eventsToTrack = options.eventsToTrack || dataSetupOptions.eventsToTrack || defaultsEventsToTrack;
     eventCategory = options.eventCategory || dataSetupOptions.eventCategory || 'Video';
     autoLabel = options.autoLabel != null ? options.autoLabel : true;
@@ -171,6 +171,28 @@
         sendbeacon('exit fullscreen', false, currentTime);
       }
     };
+    adstart = function() {
+      stopTimeTracking();
+      if (__indexOf.call(eventsToTrack, 'adstart') >= 0) {
+        return sendbeacon('adstart', false, getCurrentValue());
+      }
+    };
+    adpause = function() {
+      return sendbeacon('adpause', false);
+    };
+    adend = function() {
+      startTimeTracking();
+      return sendbeacon('adend', true);
+    };
+    adskip = function() {
+      return sendbeacon('adskip', false);
+    };
+    adtimeout = function() {
+      return sendbeacon('adtimeout', true);
+    };
+    adserror = function(data) {
+      return sendbeacon('adserror', true, data != null ? data.AdError : void 0);
+    };
     getCurrentValue = function() {
       if (isFinite) {
         return getCurrentTime();
@@ -232,7 +254,25 @@
         this.on("error", error);
       }
       if (__indexOf.call(eventsToTrack, "fullscreen") >= 0) {
-        return this.on("fullscreenchange", fullscreen);
+        this.on("fullscreenchange", fullscreen);
+      }
+      if (__indexOf.call(eventsToTrack, "adstart") >= 0) {
+        this.on("adstart", adstart);
+      }
+      if (__indexOf.call(eventsToTrack, "adpause") >= 0) {
+        this.on("adpause", adpause);
+      }
+      if (__indexOf.call(eventsToTrack, "adend") >= 0) {
+        this.on("adend", adend);
+      }
+      if (__indexOf.call(eventsToTrack, "adskip") >= 0) {
+        this.on("adskip", adskip);
+      }
+      if (__indexOf.call(eventsToTrack, "adtimeout") >= 0) {
+        this.on("adtimeout", adtimeout);
+      }
+      if (__indexOf.call(eventsToTrack, "adserror") >= 0) {
+        return this.on("adserror", adserror);
       }
     });
     return {

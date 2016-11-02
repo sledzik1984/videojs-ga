@@ -16,7 +16,8 @@ videojs.plugin 'ga', (options = {}) ->
   defaultsEventsToTrack = [
     'loaded', 'percentsPlayed', 'secondsPlayed', 'start',
     'end', 'seek', 'play', 'pause', 'resize',
-    'volumeChange', 'error', 'fullscreen'
+    'volumeChange', 'error', 'fullscreen',
+    'adstart', 'adpause', 'adend', 'adskip', 'adtimeout', 'adserror'
   ]
   eventsToTrack = options.eventsToTrack || dataSetupOptions.eventsToTrack || defaultsEventsToTrack
   eventCategory = options.eventCategory || dataSetupOptions.eventCategory || 'Video'
@@ -171,6 +172,26 @@ videojs.plugin 'ga', (options = {}) ->
       sendbeacon( 'exit fullscreen', false, currentTime )
     return
 
+  adstart = ->
+    stopTimeTracking()
+    sendbeacon( 'adstart', false, getCurrentValue() ) if 'adstart' in eventsToTrack
+
+  adpause = ->
+    sendbeacon( 'adpause', false )
+
+  adend = ->
+    startTimeTracking()
+    sendbeacon( 'adend', true )
+
+  adskip = ->
+    sendbeacon( 'adskip', false )
+
+  adtimeout = ->
+    sendbeacon( 'adtimeout', true )
+
+  adserror = (data) ->
+    sendbeacon( 'adserror', true, data?.AdError )
+
   getCurrentValue = ->
     return if isFinite then getCurrentTime() else secondsPlayed
 
@@ -212,5 +233,11 @@ videojs.plugin 'ga', (options = {}) ->
     @on("resize", resize) if "resize" in eventsToTrack
     @on("error", error) if "error" in eventsToTrack
     @on("fullscreenchange", fullscreen) if "fullscreen" in eventsToTrack
+    @on("adstart", adstart) if "adstart" in eventsToTrack
+    @on("adpause", adpause) if "adpause" in eventsToTrack
+    @on("adend", adend) if "adend" in eventsToTrack
+    @on("adskip", adskip) if "adskip" in eventsToTrack
+    @on("adtimeout", adtimeout) if "adtimeout" in eventsToTrack
+    @on("adserror", adserror) if "adserror" in eventsToTrack
 
   return 'sendbeacon': sendbeacon
