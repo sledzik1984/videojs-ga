@@ -42,21 +42,26 @@ The following options are supported:
 
 ####eventCategory
 
-This is the ```category``` sent to GA. If you don't know what it is please check [GA's doc](https://developers.google.com/analytics/devguides/collection/gajs/eventTrackerGuide)
+This is the ```eventCategory``` sent to GA. If you don't know what it is please check [GA's doc](https://developers.google.com/analytics/devguides/collection/analyticsjs/events)
 **default:** ```'Video'```
-
 
 ####eventLabel
 
-This is the ```label``` sent to GA. If you don't know what it is please check [GA's doc](https://developers.google.com/analytics/devguides/collection/gajs/eventTrackerGuide)
-**default:** basename of the video path so if the path is ```http://s3.amazonaws.com/pouet.mp4``` the label would be ```pouet```
+This is the ```eventLabel``` sent to GA. If you don't know what it is please check [GA's doc](https://developers.google.com/analytics/devguides/collection/analyticsjs/events)
+If not set, label will be generated automatically, unless ```autoLabel``` option is set to false.
+
+####autoLabel
+
+If set to true, ```eventLabel``` will be generated automatically using basename of the video path.
+E.g. if the path is ```http://s3.amazonaws.com/pouet.mp4``` the label would be ```pouet```
+**default:** ```true```
 
 ####eventsToTrack
 
 The events you want to track. Most of this events are videojs events. Some of them might reflects my needs.
 I'm open to add some more if you care to provide a good use case or a pull request.
 **default:** every events
-  ```[ 'loaded', 'percentsPlayed', 'start', 'end', 'seek', 'play', 'pause', 'resize', 'volumeChange', 'error', 'fullscreen']```
+  ```[ 'loaded', 'percentsPlayed', 'secondsPlayed', 'start', 'end', 'seek', 'play', 'pause', 'resize', 'volumeChange', 'error', 'fullscreen']```
 
 Most of the events are selft explanatory, here's the ones that may need more details:
 
@@ -64,8 +69,26 @@ Most of the events are selft explanatory, here's the ones that may need more det
 
 ####percentsPlayedInterval
 
-This options goes with the ```percentsPlayed``` event. Every ```percentsPlayedInterval``` percents an event will be sent to GA.
+This option goes with the ```percentsPlayed``` event. Every ```percentsPlayedInterval``` percents an event will be sent to GA.
 **default:** 10
+
+####secondsPlayedInterval
+
+This option goes with the ```secondsPlayed``` event. Every ```secondsPlayedInterval``` seconds of the actual playback an event will be sent to GA.
+**default:** 60
+
+####secondsPlayedMoments
+
+This option goes with the ```secondsPlayed``` event. After each value of ```secondsPlayedMoments``` seconds of the actual playback an event will be sent to GA.
+**default:** ```[]```
+
+####trackFiniteSeconds
+
+If set to true and at least one of ```secondsPlayedInterval```, ```secondsPlayedMoments``` options is set, ```seconds played``` events will be triggered.
+
+####trackReplaySeconds
+If set to true, ```start``` and ```secondsPlayed``` events will be emitted even after video has ended and then has been started again.
+**default:** ```false```
 
 ####debug
 
