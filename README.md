@@ -90,6 +90,15 @@ If set to true and at least one of ```secondsPlayedInterval```, ```secondsPlayed
 If set to true, ```start``` and ```secondsPlayed``` events will be emitted even after video has ended and then has been started again.
 **default:** ```false```
 
+####sendGaEventDirectly
+If set to true, plugin will send events to GA directly. Otherwise you need to listen to ```gaEvent``` on the player instance and then send events to GA manually, e.g.
+```
+player.on('gaEvent', function(e, gaEvent) {
+  ga('send', gaEvent);
+});
+```
+**default:** ```false```
+
 ####debug
 
 If set to false, console logs will be ommited
