@@ -108,8 +108,8 @@
     };
     firstplay = function() {
       startTimeTracking();
-      if (__indexOf.call(eventsToTrack, 'firstplay') >= 0) {
-        return sendbeacon('firstplay', true);
+      if (__indexOf.call(eventsToTrack, 'start') >= 0 && !isFinite) {
+        return sendbeacon('start', true);
       }
     };
     end = function() {
