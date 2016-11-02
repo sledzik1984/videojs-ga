@@ -80,11 +80,15 @@ This option goes with the ```secondsPlayed``` event. Every ```secondsPlayedInter
 ####secondsPlayedMoments
 
 This option goes with the ```secondsPlayed``` event. After each value of ```secondsPlayedMoments``` seconds of the actual playback an event will be sent to GA.
-**default:** []
+**default:** ```[]```
 
 ####trackFiniteSeconds
 
 If set to true and at least one of ```secondsPlayedInterval```, ```secondsPlayedMoments``` options is set, ```seconds played``` events will be triggered.
+
+####trackReplaySeconds
+If set to true, ```start``` and ```secondsPlayed``` events will be emitted even after video has ended and then has been started again.
+**default:** ```false```
 
 ####debug
 

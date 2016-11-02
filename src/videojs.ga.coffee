@@ -26,11 +26,13 @@ videojs.plugin 'ga', (options = {}) ->
   percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval || 10
   secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval || 60
   secondsPlayedMoments = options.secondsPlayedMoments || dataSetupOptions.secondsPlayedMoments
+  trackReplaySeconds = options.trackReplaySeconds
 
   # init a few variables
   percentsAlreadyTracked = []
   seekStart = seekEnd = 0
   seeking = false
+  ended = false
   trackingTime = false
   secondsPlayed = 0
   isFinite = undefined
@@ -116,14 +118,19 @@ videojs.plugin 'ga', (options = {}) ->
     sendbeacon( 'start', true ) if 'start' in eventsToTrack and !isFinite
 
   end = ->
+    ended = true
     stopTimeTracking()
+    if trackReplaySeconds then secondsPlayed = 0 else trackSeconds = false
     sendbeacon( 'end', true )
     return
 
   play = ->
     startTimeTracking()
     currentTime = getCurrentValue()
-    sendbeacon( 'play', true, currentTime ) if (currentTime > 0 || 'start' not in eventsToTrack)
+    if (currentTime > 0 || 'start' not in eventsToTrack)
+      sendbeacon( 'play', true, currentTime )
+    if ended && currentTime == 0 && trackReplaySeconds
+      sendbeacon( 'start', true )
     seeking = false
     return
 

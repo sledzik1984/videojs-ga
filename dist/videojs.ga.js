@@ -7,7 +7,7 @@
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   videojs.plugin('ga', function(options) {
-    var autoLabel, dataSetupOptions, defaultsEventsToTrack, end, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedMoments, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackSeconds, trackingTime, volumeChange,
+    var autoLabel, dataSetupOptions, defaultsEventsToTrack, end, ended, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedMoments, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackReplaySeconds, trackSeconds, trackingTime, volumeChange,
       _this = this;
     if (options == null) {
       options = {};
@@ -27,9 +27,11 @@
     percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval || 10;
     secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval || 60;
     secondsPlayedMoments = options.secondsPlayedMoments || dataSetupOptions.secondsPlayedMoments;
+    trackReplaySeconds = options.trackReplaySeconds;
     percentsAlreadyTracked = [];
     seekStart = seekEnd = 0;
     seeking = false;
+    ended = false;
     trackingTime = false;
     secondsPlayed = 0;
     isFinite = void 0;
@@ -113,7 +115,13 @@
       }
     };
     end = function() {
+      ended = true;
       stopTimeTracking();
+      if (trackReplaySeconds) {
+        secondsPlayed = 0;
+      } else {
+        trackSeconds = false;
+      }
       sendbeacon('end', true);
     };
     play = function() {
@@ -122,6 +130,9 @@
       currentTime = getCurrentValue();
       if (currentTime > 0 || __indexOf.call(eventsToTrack, 'start') < 0) {
         sendbeacon('play', true, currentTime);
+      }
+      if (ended && currentTime === 0 && trackReplaySeconds) {
+        sendbeacon('start', true);
       }
       seeking = false;
     };
