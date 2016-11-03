@@ -9,8 +9,8 @@
 videojs.plugin 'ga', (options = {}) ->
   # this loads options from the data-setup attribute of the video tag
   dataSetupOptions = {}
-  if @options_["data-setup"]
-    parsedOptions = JSON.parse(@options_["data-setup"])
+  if @options_['data-setup']
+    parsedOptions = JSON.parse(@options_['data-setup'])
     dataSetupOptions = parsedOptions.ga if parsedOptions.ga
 
   defaultsEventsToTrack = [
@@ -49,7 +49,7 @@ videojs.plugin 'ga', (options = {}) ->
     trackSeconds = 'secondsPlayed' in eventsToTrack && (!isFinite || options.trackFiniteSeconds)
 
     if !eventLabel && autoLabel
-      eventLabel = @currentSrc().split("/").slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i,'')
+      eventLabel = @currentSrc().split('/').slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i,'')
 
     if !isFinite && !(options.eventCategory || dataSetupOptions.eventCategory)
       eventCategory = 'Stream'
@@ -59,7 +59,7 @@ videojs.plugin 'ga', (options = {}) ->
   loaded = ->
     init()
 
-    if "loadedmetadata" in eventsToTrack
+    if 'loadedmetadata' in eventsToTrack
       sendbeacon( 'loadedmetadata', true )
 
     return
@@ -75,15 +75,15 @@ videojs.plugin 'ga', (options = {}) ->
       for percent in [0..99] by percentsPlayedInterval
         if percentPlayed >= percent && percent not in percentsAlreadyTracked
 
-          if "start" in eventsToTrack && percent == 0 && percentPlayed > 0
+          if 'start' in eventsToTrack && percent == 0 && percentPlayed > 0
             sendbeacon( 'start', true )
-          else if "percentsPlayed" in eventsToTrack && percentPlayed != 0
+          else if 'percentsPlayed' in eventsToTrack && percentPlayed != 0
             sendbeacon( 'percent played', true, percent )
 
           if percentPlayed > 0
             percentsAlreadyTracked.push(percent)
 
-    if "seek" in eventsToTrack
+    if 'seek' in eventsToTrack
       seekStart = seekEnd
       seekEnd = currentTime
       # if the difference between the start and the end are greater than 1 it's a seek.
@@ -155,7 +155,7 @@ videojs.plugin 'ga', (options = {}) ->
     return
 
   resize = ->
-    sendbeacon( 'resize - ' + @width() + "*" + @height(), true )
+    sendbeacon( 'resize - ' + @width() + '*' + @height(), true )
     return
 
   error = ->
@@ -222,22 +222,22 @@ videojs.plugin 'ga', (options = {}) ->
     return
 
   @ready ->
-    @on("loadedmetadata", loaded)
-    @on("timeupdate", timeupdate)
-    @one("firstplay", firstplay)
-    @on("ended", end) if "end" in eventsToTrack
-    @on("play", play) if "play" in eventsToTrack
-    @on("playing", playing)
-    @on("pause", pause) if "pause" in eventsToTrack
-    @on("volumechange", volumeChange) if "volumeChange" in eventsToTrack
-    @on("resize", resize) if "resize" in eventsToTrack
-    @on("error", error) if "error" in eventsToTrack
-    @on("fullscreenchange", fullscreen) if "fullscreen" in eventsToTrack
-    @on("adstart", adstart) if "adstart" in eventsToTrack
-    @on("adpause", adpause) if "adpause" in eventsToTrack
-    @on("adend", adend) if "adend" in eventsToTrack
-    @on("adskip", adskip) if "adskip" in eventsToTrack
-    @on("adtimeout", adtimeout) if "adtimeout" in eventsToTrack
-    @on("adserror", adserror) if "adserror" in eventsToTrack
+    @on('loadedmetadata', loaded)
+    @on('timeupdate', timeupdate)
+    @one('firstplay', firstplay)
+    @on('ended', end) if 'end' in eventsToTrack
+    @on('play', play) if 'play' in eventsToTrack
+    @on('playing', playing)
+    @on('pause', pause) if 'pause' in eventsToTrack
+    @on('volumechange', volumeChange) if 'volumeChange' in eventsToTrack
+    @on('resize', resize) if 'resize' in eventsToTrack
+    @on('error', error) if 'error' in eventsToTrack
+    @on('fullscreenchange', fullscreen) if 'fullscreen' in eventsToTrack
+    @on('adstart', adstart) if 'adstart' in eventsToTrack
+    @on('adpause', adpause) if 'adpause' in eventsToTrack
+    @on('adend', adend) if 'adend' in eventsToTrack
+    @on('adskip', adskip) if 'adskip' in eventsToTrack
+    @on('adtimeout', adtimeout) if 'adtimeout' in eventsToTrack
+    @on('adserror', adserror) if 'adserror' in eventsToTrack
 
   return 'sendbeacon': sendbeacon

@@ -1,5 +1,5 @@
 /*
-* videojs-ga - v0.4.2 - 2016-11-02
+* videojs-ga - v0.4.2 - 2016-11-03
 * Copyright (c) 2016 Michael Bensoussan
 * Licensed MIT
 */
@@ -13,8 +13,8 @@
       options = {};
     }
     dataSetupOptions = {};
-    if (this.options_["data-setup"]) {
-      parsedOptions = JSON.parse(this.options_["data-setup"]);
+    if (this.options_['data-setup']) {
+      parsedOptions = JSON.parse(this.options_['data-setup']);
       if (parsedOptions.ga) {
         dataSetupOptions = parsedOptions.ga;
       }
@@ -42,7 +42,7 @@
       isFinite = Number.isFinite(_this.duration());
       trackSeconds = __indexOf.call(eventsToTrack, 'secondsPlayed') >= 0 && (!isFinite || options.trackFiniteSeconds);
       if (!eventLabel && autoLabel) {
-        eventLabel = _this.currentSrc().split("/").slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i, '');
+        eventLabel = _this.currentSrc().split('/').slice(-1)[0].replace(/\.(\w{3,4})(\?.*)?$/i, '');
       }
       if (!isFinite && !(options.eventCategory || dataSetupOptions.eventCategory)) {
         eventCategory = 'Stream';
@@ -51,7 +51,7 @@
     };
     loaded = function() {
       init();
-      if (__indexOf.call(eventsToTrack, "loadedmetadata") >= 0) {
+      if (__indexOf.call(eventsToTrack, 'loadedmetadata') >= 0) {
         sendbeacon('loadedmetadata', true);
       }
     };
@@ -66,9 +66,9 @@
       if (percentsPlayedInterval) {
         for (percent = _i = 0; _i <= 99; percent = _i += percentsPlayedInterval) {
           if (percentPlayed >= percent && __indexOf.call(percentsAlreadyTracked, percent) < 0) {
-            if (__indexOf.call(eventsToTrack, "start") >= 0 && percent === 0 && percentPlayed > 0) {
+            if (__indexOf.call(eventsToTrack, 'start') >= 0 && percent === 0 && percentPlayed > 0) {
               sendbeacon('start', true);
-            } else if (__indexOf.call(eventsToTrack, "percentsPlayed") >= 0 && percentPlayed !== 0) {
+            } else if (__indexOf.call(eventsToTrack, 'percentsPlayed') >= 0 && percentPlayed !== 0) {
               sendbeacon('percent played', true, percent);
             }
             if (percentPlayed > 0) {
@@ -77,7 +77,7 @@
           }
         }
       }
-      if (__indexOf.call(eventsToTrack, "seek") >= 0) {
+      if (__indexOf.call(eventsToTrack, 'seek') >= 0) {
         seekStart = seekEnd;
         seekEnd = currentTime;
         if (Math.abs(seekStart - seekEnd) > 1) {
@@ -155,7 +155,7 @@
       sendbeacon('volume change', false, volume);
     };
     resize = function() {
-      sendbeacon('resize - ' + this.width() + "*" + this.height(), true);
+      sendbeacon('resize - ' + this.width() + '*' + this.height(), true);
     };
     error = function() {
       var currentTime;
@@ -231,48 +231,48 @@
       }
     };
     this.ready(function() {
-      this.on("loadedmetadata", loaded);
-      this.on("timeupdate", timeupdate);
-      this.one("firstplay", firstplay);
-      if (__indexOf.call(eventsToTrack, "end") >= 0) {
-        this.on("ended", end);
+      this.on('loadedmetadata', loaded);
+      this.on('timeupdate', timeupdate);
+      this.one('firstplay', firstplay);
+      if (__indexOf.call(eventsToTrack, 'end') >= 0) {
+        this.on('ended', end);
       }
-      if (__indexOf.call(eventsToTrack, "play") >= 0) {
-        this.on("play", play);
+      if (__indexOf.call(eventsToTrack, 'play') >= 0) {
+        this.on('play', play);
       }
-      this.on("playing", playing);
-      if (__indexOf.call(eventsToTrack, "pause") >= 0) {
-        this.on("pause", pause);
+      this.on('playing', playing);
+      if (__indexOf.call(eventsToTrack, 'pause') >= 0) {
+        this.on('pause', pause);
       }
-      if (__indexOf.call(eventsToTrack, "volumeChange") >= 0) {
-        this.on("volumechange", volumeChange);
+      if (__indexOf.call(eventsToTrack, 'volumeChange') >= 0) {
+        this.on('volumechange', volumeChange);
       }
-      if (__indexOf.call(eventsToTrack, "resize") >= 0) {
-        this.on("resize", resize);
+      if (__indexOf.call(eventsToTrack, 'resize') >= 0) {
+        this.on('resize', resize);
       }
-      if (__indexOf.call(eventsToTrack, "error") >= 0) {
-        this.on("error", error);
+      if (__indexOf.call(eventsToTrack, 'error') >= 0) {
+        this.on('error', error);
       }
-      if (__indexOf.call(eventsToTrack, "fullscreen") >= 0) {
-        this.on("fullscreenchange", fullscreen);
+      if (__indexOf.call(eventsToTrack, 'fullscreen') >= 0) {
+        this.on('fullscreenchange', fullscreen);
       }
-      if (__indexOf.call(eventsToTrack, "adstart") >= 0) {
-        this.on("adstart", adstart);
+      if (__indexOf.call(eventsToTrack, 'adstart') >= 0) {
+        this.on('adstart', adstart);
       }
-      if (__indexOf.call(eventsToTrack, "adpause") >= 0) {
-        this.on("adpause", adpause);
+      if (__indexOf.call(eventsToTrack, 'adpause') >= 0) {
+        this.on('adpause', adpause);
       }
-      if (__indexOf.call(eventsToTrack, "adend") >= 0) {
-        this.on("adend", adend);
+      if (__indexOf.call(eventsToTrack, 'adend') >= 0) {
+        this.on('adend', adend);
       }
-      if (__indexOf.call(eventsToTrack, "adskip") >= 0) {
-        this.on("adskip", adskip);
+      if (__indexOf.call(eventsToTrack, 'adskip') >= 0) {
+        this.on('adskip', adskip);
       }
-      if (__indexOf.call(eventsToTrack, "adtimeout") >= 0) {
-        this.on("adtimeout", adtimeout);
+      if (__indexOf.call(eventsToTrack, 'adtimeout') >= 0) {
+        this.on('adtimeout', adtimeout);
       }
-      if (__indexOf.call(eventsToTrack, "adserror") >= 0) {
-        return this.on("adserror", adserror);
+      if (__indexOf.call(eventsToTrack, 'adserror') >= 0) {
+        return this.on('adserror', adserror);
       }
     });
     return {
