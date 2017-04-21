@@ -1,11 +1,17 @@
 {
   "name": "videojs-ga",
-  "version": "0.4.2",
+  "version": "0.5.1",
   "license": "MIT",
   "author": {
     "name": "Michael Bensoussan",
     "email": "mbensoussan.is@gmail.com"
   },
+  "contributors": [
+    {
+      "name": "Mikhail Khazov",
+      "email": "mkhazov.work@gmail.com"
+    }
+  ],
   "engines": {
     "node": ">= 0.8.0"
   },
