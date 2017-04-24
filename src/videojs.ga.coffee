@@ -25,12 +25,13 @@ videojs.plugin 'ga', (options = {}) ->
   autoLabel = if options.autoLabel? then options.autoLabel else true
   eventLabel = options.eventLabel || dataSetupOptions.eventLabel
   percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval || 10
+  percentsPlayedMoments = options.percentsPlayedMoments || dataSetupOptions.percentsPlayedMoments || []
   secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval || 60
-  secondsPlayedMoments = options.secondsPlayedMoments || dataSetupOptions.secondsPlayedMoments
+  secondsPlayedMoments = options.secondsPlayedMoments || dataSetupOptions.secondsPlayedMoments || []
   trackReplaySeconds = options.trackReplaySeconds
 
   # init a few variables
-  percentsAlreadyTracked = []
+  percentsTracked = []
   seekStart = seekEnd = 0
   seeking = false
   ended = false
@@ -67,30 +68,43 @@ videojs.plugin 'ga', (options = {}) ->
   timeupdate = ->
     return unless isFinite
 
-    currentTime = getCurrentValue()
-    duration = Math.round(@duration())
-    percentPlayed = Math.round(currentTime/duration*100)
-
-    if percentsPlayedInterval
-      for percent in [0..99] by percentsPlayedInterval
-        if percent > 0 && percentPlayed >= percent && percent not in percentsAlreadyTracked
-
-          if 'percentsPlayed' in eventsToTrack && percentPlayed != 0
-            sendbeacon( 'percent played', true, percent )
-
-          if percentPlayed > 0
-            percentsAlreadyTracked.push(percent)
+    if 'percentsPlayed' in eventsToTrack
+      trackPercent()
 
     if 'seek' in eventsToTrack
-      seekStart = seekEnd
-      seekEnd = currentTime
-      # if the difference between the start and the end are greater than 1 it's a seek.
-      if Math.abs(seekStart - seekEnd) > 1
-        seeking = true
-        sendbeacon( 'seek start', false, seekStart )
-        sendbeacon( 'seek end', false, seekEnd )
+      trackSeek()
 
     return
+
+  trackPercent = =>
+    currentTime = @currentTime()
+    duration = @duration()
+    percentsPlayed = Math.round(currentTime / duration * 100)
+    percentToTrack = undefined
+
+    return if !percentsPlayed || percentsPlayed in percentsTracked
+
+    # handle `percentsPlayedMoments`
+    for percent in percentsPlayedMoments
+      if percent is percentsPlayed
+        percentToTrack = percentsPlayed
+
+    # handle `percentsPlayedInterval`
+    if percentsPlayedInterval && !(percentsPlayed % percentsPlayedInterval)
+      percentToTrack = percent = percentsPlayed
+
+    if percentToTrack
+      sendbeacon( 'percent played', true, percentsPlayed )
+      percentsTracked.push(percentsPlayed)
+
+  trackSeek = ->
+    seekStart = seekEnd
+    seekEnd = getCurrentValue()
+    # if the difference between the start and the end are greater than 1 it's a seek.
+    if Math.abs(seekStart - seekEnd) > 1
+      seeking = true
+      sendbeacon( 'seek start', false, seekStart )
+      sendbeacon( 'seek end', false, seekEnd )
 
   startTimeTracking = =>
     return if !trackSeconds || trackingTime

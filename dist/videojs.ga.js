@@ -1,5 +1,5 @@
 /*
-* videojs-ga - v0.5.1 - 2017-04-21
+* videojs-ga - v0.5.1 - 2017-04-24
 * Copyright (c) 2017 Michael Bensoussan
 * Licensed MIT
 */
@@ -7,7 +7,7 @@
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   videojs.plugin('ga', function(options) {
-    var adend, adpause, adserror, adskip, adstart, adtimeout, autoLabel, dataSetupOptions, defaultsEventsToTrack, end, ended, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsAlreadyTracked, percentsPlayedInterval, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedMoments, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackReplaySeconds, trackSeconds, trackingTime, volumeChange,
+    var adend, adpause, adserror, adskip, adstart, adtimeout, autoLabel, dataSetupOptions, defaultsEventsToTrack, end, ended, error, eventCategory, eventLabel, eventsToTrack, firstplay, fullscreen, getCurrentTime, getCurrentValue, init, interval, isFinite, loaded, parsedOptions, pause, percentsPlayedInterval, percentsPlayedMoments, percentsTracked, play, playing, resize, secondsPlayed, secondsPlayedInterval, secondsPlayedMoments, seekEnd, seekStart, seeking, sendbeacon, startTimeTracking, stopTimeTracking, timeupdate, trackPercent, trackReplaySeconds, trackSeconds, trackSeek, trackingTime, volumeChange,
       _this = this;
     if (options == null) {
       options = {};
@@ -25,10 +25,11 @@
     autoLabel = options.autoLabel != null ? options.autoLabel : true;
     eventLabel = options.eventLabel || dataSetupOptions.eventLabel;
     percentsPlayedInterval = options.percentsPlayedInterval || dataSetupOptions.percentsPlayedInterval || 10;
+    percentsPlayedMoments = options.percentsPlayedMoments || dataSetupOptions.percentsPlayedMoments || [];
     secondsPlayedInterval = options.secondsPlayedInterval || dataSetupOptions.secondsPlayedInterval || 60;
-    secondsPlayedMoments = options.secondsPlayedMoments || dataSetupOptions.secondsPlayedMoments;
+    secondsPlayedMoments = options.secondsPlayedMoments || dataSetupOptions.secondsPlayedMoments || [];
     trackReplaySeconds = options.trackReplaySeconds;
-    percentsAlreadyTracked = [];
+    percentsTracked = [];
     seekStart = seekEnd = 0;
     seeking = false;
     ended = false;
@@ -56,33 +57,46 @@
       }
     };
     timeupdate = function() {
-      var currentTime, duration, percent, percentPlayed, _i;
       if (!isFinite) {
         return;
       }
-      currentTime = getCurrentValue();
-      duration = Math.round(this.duration());
-      percentPlayed = Math.round(currentTime / duration * 100);
-      if (percentsPlayedInterval) {
-        for (percent = _i = 0; _i <= 99; percent = _i += percentsPlayedInterval) {
-          if (percent > 0 && percentPlayed >= percent && __indexOf.call(percentsAlreadyTracked, percent) < 0) {
-            if (__indexOf.call(eventsToTrack, 'percentsPlayed') >= 0 && percentPlayed !== 0) {
-              sendbeacon('percent played', true, percent);
-            }
-            if (percentPlayed > 0) {
-              percentsAlreadyTracked.push(percent);
-            }
-          }
-        }
+      if (__indexOf.call(eventsToTrack, 'percentsPlayed') >= 0) {
+        trackPercent();
       }
       if (__indexOf.call(eventsToTrack, 'seek') >= 0) {
-        seekStart = seekEnd;
-        seekEnd = currentTime;
-        if (Math.abs(seekStart - seekEnd) > 1) {
-          seeking = true;
-          sendbeacon('seek start', false, seekStart);
-          sendbeacon('seek end', false, seekEnd);
+        trackSeek();
+      }
+    };
+    trackPercent = function() {
+      var currentTime, duration, percent, percentToTrack, percentsPlayed, _i, _len;
+      currentTime = _this.currentTime();
+      duration = _this.duration();
+      percentsPlayed = Math.round(currentTime / duration * 100);
+      percentToTrack = void 0;
+      if (!percentsPlayed || __indexOf.call(percentsTracked, percentsPlayed) >= 0) {
+        return;
+      }
+      for (_i = 0, _len = percentsPlayedMoments.length; _i < _len; _i++) {
+        percent = percentsPlayedMoments[_i];
+        if (percent === percentsPlayed) {
+          percentToTrack = percentsPlayed;
         }
+      }
+      if (percentsPlayedInterval && !(percentsPlayed % percentsPlayedInterval)) {
+        percentToTrack = percent = percentsPlayed;
+      }
+      if (percentToTrack) {
+        sendbeacon('percent played', true, percentsPlayed);
+        return percentsTracked.push(percentsPlayed);
+      }
+    };
+    trackSeek = function() {
+      seekStart = seekEnd;
+      seekEnd = getCurrentValue();
+      if (Math.abs(seekStart - seekEnd) > 1) {
+        seeking = true;
+        sendbeacon('seek start', false, seekStart);
+        return sendbeacon('seek end', false, seekEnd);
       }
     };
     startTimeTracking = function() {

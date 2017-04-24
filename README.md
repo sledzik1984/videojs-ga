@@ -70,7 +70,13 @@ Most of the events are selft explanatory, here's the ones that may need more det
 ####percentsPlayedInterval
 
 This option goes with the ```percentsPlayed``` event. Every ```percentsPlayedInterval``` percents an event will be sent to GA.
+Set this options to `false` if you want to use `percentsPlayedMoments` option and don't want to track every 10 percent of playback.
 **default:** 10
+
+####percentsPlayedMoments
+
+This option goes with the ```percentsPlayed``` event. After each value of ```percentsPlayedMoments``` percents of the actual playback an event will be sent.
+**default:** ```[]```
 
 ####secondsPlayedInterval
 
