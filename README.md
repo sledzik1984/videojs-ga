@@ -40,23 +40,23 @@ The plugin will take in priority options provided in the javascript, followed by
 
 The following options are supported:
 
-####eventCategory
+### eventCategory
 
-This is the ```eventCategory``` sent to GA. If you don't know what it is please check [GA's doc](https://developers.google.com/analytics/devguides/collection/analyticsjs/events)
-**default:** ```'Video'```
+This is the `eventCategory` sent to GA. If you don't know what it is please check [GA's doc](https://developers.google.com/analytics/devguides/collection/analyticsjs/events)
+**default:** `'Video'`
 
-####eventLabel
+### eventLabel
 
-This is the ```eventLabel``` sent to GA. If you don't know what it is please check [GA's doc](https://developers.google.com/analytics/devguides/collection/analyticsjs/events)
-If not set, label will be generated automatically, unless ```autoLabel``` option is set to false.
+This is the `eventLabel` sent to GA. If you don't know what it is please check [GA's doc](https://developers.google.com/analytics/devguides/collection/analyticsjs/events)
+If not set, label will be generated automatically, unless `autoLabel` option is set to false.
 
-####autoLabel
+### autoLabel
 
-If set to true, ```eventLabel``` will be generated automatically using basename of the video path.
-E.g. if the path is ```http://s3.amazonaws.com/pouet.mp4``` the label would be ```pouet```
-**default:** ```true```
+If set to true, `eventLabel` will be generated automatically using basename of the video path.
+E.g. if the path is `http://s3.amazonaws.com/pouet.mp4` the label would be `pouet`
+**default:** `true`
 
-####eventsToTrack
+### eventsToTrack
 
 The events you want to track. Most of this events are videojs events. Some of them might reflects my needs.
 I'm open to add some more if you care to provide a good use case or a pull request.
@@ -65,52 +65,52 @@ I'm open to add some more if you care to provide a good use case or a pull reque
 
 Most of the events are selft explanatory, here's the ones that may need more details:
 
-- ```percentsPlayed```: will send an event every X percents. X being defined by the option ```percentsPlayedInterval```.
+- `percentsPlayed`: will send an event every X percents. X being defined by the option `percentsPlayedInterval`.
 
-####percentsPlayedInterval
+### percentsPlayedInterval
 
-This option goes with the ```percentsPlayed``` event. Every ```percentsPlayedInterval``` percents an event will be sent to GA.
+This option goes with the `percentsPlayed` event. Every `percentsPlayedInterval` percents an event will be sent to GA.
 Set this options to `false` if you want to use `percentsPlayedMoments` option and don't want to track every 10 percent of playback.
 **default:** 10
 
-####percentsPlayedMoments
+### percentsPlayedMoments
 
-This option goes with the ```percentsPlayed``` event. After each value of ```percentsPlayedMoments``` percents of the actual playback an event will be sent.
-**default:** ```[]```
+This option goes with the `percentsPlayed` event. After each value of `percentsPlayedMoments` percents of the actual playback an event will be sent.
+**default:** `[]`
 
-####secondsPlayedInterval
+### secondsPlayedInterval
 
-This option goes with the ```secondsPlayed``` event. Every ```secondsPlayedInterval``` seconds of the actual playback an event will be sent to GA.
+This option goes with the `secondsPlayed` event. Every `secondsPlayedInterval` seconds of the actual playback an event will be sent to GA.
 **default:** 60
 
-####secondsPlayedMoments
+### secondsPlayedMoments
 
-This option goes with the ```secondsPlayed``` event. After each value of ```secondsPlayedMoments``` seconds of the actual playback an event will be sent to GA.
-**default:** ```[]```
+This option goes with the `secondsPlayed` event. After each value of `secondsPlayedMoments` seconds of the actual playback an event will be sent to GA.
+**default:** `[]`
 
-####trackFiniteSeconds
+### trackFiniteSeconds
 
-If set to true and at least one of ```secondsPlayedInterval```, ```secondsPlayedMoments``` options is set, ```seconds played``` events will be triggered.
+If set to true and at least one of `secondsPlayedInterval`, `secondsPlayedMoments` options is set, `seconds played` events will be triggered.
 
-####trackReplaySeconds
-If set to true, ```start``` and ```secondsPlayed``` events will be emitted even after video has ended and then has been started again.
-**default:** ```false```
+### trackReplaySeconds
+If set to true, `start` and `secondsPlayed` events will be emitted even after video has ended and then has been started again.
+**default:** `false`
 
-####sendGaEventDirectly
-If set to true, plugin will send events to GA directly. Otherwise you need to listen to ```gaEvent``` on the player instance and then send events to GA manually, e.g.
-```
+### sendGaEventDirectly
+If set to true, plugin will send events to GA directly. Otherwise you need to listen to `gaEvent` on the player instance and then send events to GA manually, e.g.
+```javascript
 player.on('gaEvent', function(e, gaEvent) {
   ga('send', gaEvent);
 });
 ```
-**default:** ```false```
+**default:** `false`
 
-####debug
+### debug
 
 If set to false, console logs will be ommited
-**default:** ```false```
+**default:** `false`
 
-#### ga.js and analytics.js
+## ga.js and analytics.js
 
 This plugin supports the ga.js and the newer analytics.js Google Analytics libraries. It autodetects the library you use.
 
