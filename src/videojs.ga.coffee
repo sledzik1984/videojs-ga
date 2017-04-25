@@ -128,7 +128,7 @@ videojs.plugin 'ga', (options = {}) ->
 
   firstplay = ->
     startTimeTracking()
-    sendbeacon( 'start', true ) if 'start' in eventsToTrack and !isFinite
+    sendbeacon( 'start', true ) if 'start' in eventsToTrack
 
   end = ->
     ended = true
