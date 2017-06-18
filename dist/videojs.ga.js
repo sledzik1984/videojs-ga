@@ -112,7 +112,8 @@
         }
         secondsPlayed++;
         if (__indexOf.call(secondsPlayedMoments, secondsPlayed) >= 0 || !(secondsPlayed % secondsPlayedInterval)) {
-          sendbeacon('seconds played', true, secondsPlayed);
+          sendbeacon('loop seconds played', true, 30);
+	    sendbeacon(secondsPlayed + ' seconds played', true, 0);
         }
       }, 1000);
     };
